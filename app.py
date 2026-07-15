@@ -10,6 +10,20 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
+# Initialize database schema and auto-seed if empty (crucial for cloud containers)
+from database.connection import Base, engine, SessionLocal
+from database.models import Office
+from utils.seeder import seed_database
+
+try:
+    Base.metadata.create_all(bind=engine)
+    db = SessionLocal()
+    if db.query(Office).count() == 0:
+        seed_database()
+    db.close()
+except Exception as e:
+    st.warning(f"Database auto-initialization note: {e}")
+
 # 2. Inject Styles
 inject_premium_style()
 
